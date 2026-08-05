@@ -246,25 +246,10 @@ function applyBuiltinImages(items) {
   );
 }
 
-/* ---------------- embedded built-in item sizes ---------------- */
-/* Same idea as photos above — baked in so Rain Jacket and Reflective
-   Vest Coat always offer S,M,L,XL,2XL,3XL when issuing, no matter what
-   the Sheet's "sizes" column says. */
-const BUILTIN_SIZES = {
-  "GLOVORAINJKT5C": ["S", "M", "L", "XL", "2XL", "3XL"],
-  "GLOVOVEST7E": ["S", "M", "L", "XL", "2XL", "3XL"],
-};
-function applyBuiltinSizes(items) {
-  return items.map((it) =>
-    BUILTIN_SIZES[it.sku] ? { ...it, sizes: BUILTIN_SIZES[it.sku] } : it
-  );
-}
-
 async function refreshData() {
   try {
     STATE = await apiCall("getAll", {});
     STATE.items = applyBuiltinImages(STATE.items);
-    STATE.items = applyBuiltinSizes(STATE.items);
   } catch (e) {
     console.error(e);
   }
