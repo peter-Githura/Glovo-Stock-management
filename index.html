@@ -33,8 +33,15 @@
   }
   #sidebar {
     width: 230px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; padding: 18px 0;
+    display: flex; flex-direction: column; padding: 18px 0; transition: width .15s ease;
   }
+  #sidebar.collapsed { width: 68px; }
+  #sidebar.collapsed .sidebar-link { justify-content:center; padding:10px 8px; }
+  .sidebar-toggle {
+    margin: 0 14px 14px 14px; background:transparent; border:1px solid var(--border); border-radius:6px;
+    padding:6px 10px; font-size:11.5px; font-weight:700; cursor:pointer; color:var(--text-muted); font-family:inherit;
+  }
+  #sidebar.collapsed .sidebar-toggle { margin: 0 auto 14px auto; padding:6px 10px; }
   .sidebar-logo { display:flex; align-items:center; gap:10px; padding: 0 18px 20px 18px; }
   .logo { width:34px; height:34px; border-radius:9px; background:#F2CC38; display:flex; align-items:center; justify-content:center; font-weight:900; color:#141414; font-size:16px; flex-shrink:0; }
   .sidebar-logo .t1 { font-weight:800; font-size:15px; letter-spacing:-0.01em; line-height:1.2; }
@@ -109,10 +116,18 @@
   .setup-banner { background:#3a1414; border:1px solid var(--danger); color:#fff; padding:14px; border-radius:10px; font-size:13px; line-height:1.6; }
   .setup-banner code { background:rgba(255,255,255,.12); padding:2px 6px; border-radius:4px; }
   ::placeholder { color: var(--text-dim); }
+  #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background: var(--bg); padding:20px; }
+  .login-card { width:100%; max-width:360px; background: var(--card); border:1px solid var(--border); border-radius:16px; padding:32px 28px; }
+  .login-logo { width:44px; height:44px; border-radius:12px; background:#F2CC38; display:flex; align-items:center; justify-content:center; font-weight:900; color:#141414; font-size:20px; margin:0 auto 16px auto; }
+  .login-title { text-align:center; font-weight:800; font-size:17px; margin-bottom:4px; }
+  .login-sub { text-align:center; font-size:12.5px; color:var(--text-muted); margin-bottom:22px; }
+  .login-error { background: var(--danger-bg); border:1px solid var(--danger); color:var(--text); border-radius:8px; padding:9px 12px; font-size:12.5px; margin-bottom:14px; display:none; }
+  .login-error.show { display:block; }
 </style>
 </head>
 <body>
-<div id="app-shell">
+<div id="login-screen"></div>
+<div id="app-shell" style="display:none;">
   <div id="sidebar"></div>
   <div id="main-area">
     <div id="topbar"></div>
@@ -144,6 +159,7 @@ const GLOVO_EMAIL_RE = /^[^\s@]+@([a-zA-Z0-9-]+\.)*glovoapp\.com$/i;
 const AVATAR_COLORS = ["#F2CC38", "#00A082", "#E85D3F", "#7A6A1E", "#3F7CE8", "#B14FD8", "#D8574F", "#3FAE8C"];
 const TABS = [
   { id: "issue", label: "Issue Item", icon: "📋" },
+  { id: "reports", label: "Reports", icon: "📊" },
   { id: "stock", label: "Stock", icon: "📦" },
   { id: "items", label: "Items", icon: "🏷️" },
   { id: "centres", label: "Glover Centres", icon: "🏢" },
@@ -152,6 +168,10 @@ const TABS = [
   { id: "team", label: "Team", icon: "✅" },
   { id: "log", label: "Issuance Log", icon: "📅" },
 ];
+const NON_ADMIN_TABS = ["issue", "reports"];
+function visibleTabs() {
+  return currentUser && currentUser.isAdmin ? TABS : TABS.filter((t) => NON_ADMIN_TABS.includes(t.id));
+}
 
 /* ---------------- helpers ---------------- */
 function isoWeekLabel(dateStr) {
@@ -226,6 +246,9 @@ let currentTab = "issue";
 let staffProfile = JSON.parse(localStorage.getItem("staffProfile") || "null");
 let editingStaffProfile = !staffProfile;
 let darkMode = localStorage.getItem("darkMode") !== "false";
+let sidebarCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+let loginError = "";
 let toastTimer = null;
 
 let issueDraft = {
@@ -283,9 +306,36 @@ function applyBuiltinSizes(items) {
   );
 }
 
+// Google Sheets auto-detects numeric-looking cells (e.g. a rider ID like
+// "4484610") and silently stores them as Numbers, not text. Every value
+// that should behave as text — for search, comparisons, and display —
+// gets coerced back to a string here, once, right when data comes in.
+// Without this, things like rider search and selecting a rider by ID
+// silently break for any numeric-looking ID or name.
+function normalizeState(state) {
+  const str = (v) => (v == null ? "" : String(v));
+  state.riders = (state.riders || []).map((r) => ({ ...r, id: str(r.id), name: str(r.name) }));
+  state.centres = (state.centres || []).map((c) => ({ ...c, name: str(c.name), poc: str(c.poc) }));
+  state.items = (state.items || []).map((it) => ({ ...it, sku: str(it.sku), name: str(it.name) }));
+  state.staff = (state.staff || []).map((p) => ({ ...p, email: str(p.email), name: str(p.name) }));
+  state.issuances = (state.issuances || []).map((i) => ({ ...i, riderId: str(i.riderId), riderName: str(i.riderName), sku: str(i.sku) }));
+  state.walletLedger = (state.walletLedger || []).map((l) => ({ ...l, riderId: str(l.riderId), riderName: str(l.riderName) }));
+  const newStockWarehouse = {};
+  Object.keys(state.stockWarehouse || {}).forEach((k) => (newStockWarehouse[str(k)] = state.stockWarehouse[k]));
+  state.stockWarehouse = newStockWarehouse;
+  const newStockCentres = {};
+  Object.keys(state.stockCentres || {}).forEach((centre) => {
+    const row = {};
+    Object.keys(state.stockCentres[centre] || {}).forEach((k) => (row[str(k)] = state.stockCentres[centre][k]));
+    newStockCentres[str(centre)] = row;
+  });
+  state.stockCentres = newStockCentres;
+  return state;
+}
+
 async function refreshData() {
   try {
-    STATE = await apiCall("getAll", {});
+    STATE = normalizeState(await apiCall("getAll", {}));
     STATE.items = applyBuiltinImages(STATE.items);
     STATE.items = applyBuiltinSizes(STATE.items);
   } catch (e) {
@@ -307,7 +357,7 @@ function showToast(msg, type) {
 }
 
 /* ---------------- bootstrap ---------------- */
-async function init() {
+async function initDashboard() {
   document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("PASTE_YOUR") === 0) {
     document.getElementById("content").innerHTML = `
@@ -321,6 +371,7 @@ async function init() {
   await refreshData();
   if (!issueDraft.itemSku && STATE.items.length) issueDraft.itemSku = STATE.items[0].sku;
   if (!issueDraft.centre && STATE.centres.length) issueDraft.centre = STATE.centres[0].name;
+  if (!currentUser.isAdmin && !["issue", "reports"].includes(currentTab)) currentTab = "issue";
   render();
   setInterval(async () => {
     await refreshData();
@@ -337,7 +388,68 @@ async function heartbeat() {
   } catch (e) { /* ignore */ }
 }
 
-document.addEventListener("DOMContentLoaded", init);
+/* ---------------- login gate ---------------- */
+function renderLoginScreen() {
+  document.getElementById("app-shell").style.display = "none";
+  document.getElementById("login-screen").innerHTML = `
+    <div class="login-card">
+      <div class="login-logo">G</div>
+      <div class="login-title">Rider Equipment Tracker</div>
+      <div class="login-sub">Sign in to continue</div>
+      <div class="login-error ${loginError ? "show" : ""}">${esc(loginError)}</div>
+      <div class="field" style="margin-bottom:14px;">
+        <label>Username</label>
+        <input id="loginUsername" onkeydown="if(event.key==='Enter') attemptLogin();" placeholder="Your username" />
+      </div>
+      <div class="field" style="margin-bottom:18px;">
+        <label>Password</label>
+        <input id="loginPassword" type="password" onkeydown="if(event.key==='Enter') attemptLogin();" placeholder="Your password" />
+      </div>
+      <button class="btn btn-accent" style="width:100%;padding:12px;" onclick="attemptLogin()">Sign In</button>
+    </div>`;
+}
+
+async function attemptLogin() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  if (!username || !password) {
+    loginError = "Enter both username and password.";
+    renderLoginScreen();
+    return;
+  }
+  try {
+    const data = await apiCall("login", { username, password });
+    currentUser = data;
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    loginError = "";
+    document.getElementById("login-screen").innerHTML = "";
+    document.getElementById("app-shell").style.display = "flex";
+    await initDashboard();
+  } catch (e) {
+    loginError = e.message || "Incorrect username or password.";
+    renderLoginScreen();
+  }
+}
+window.attemptLogin = attemptLogin;
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem("currentUser");
+  document.getElementById("app-shell").style.display = "none";
+  renderLoginScreen();
+}
+window.logout = logout;
+
+async function bootstrap() {
+  if (!currentUser) {
+    renderLoginScreen();
+    return;
+  }
+  document.getElementById("app-shell").style.display = "flex";
+  await initDashboard();
+}
+
+document.addEventListener("DOMContentLoaded", bootstrap);
 
 /* ---------------- render dispatcher ---------------- */
 function render() {
@@ -347,6 +459,7 @@ function render() {
 }
 
 function setTab(id) {
+  if (currentUser && !currentUser.isAdmin && !NON_ADMIN_TABS.includes(id)) return;
   currentTab = id;
   render();
 }
@@ -377,22 +490,39 @@ function renderSidebar() {
       </div>`
     : "";
 
+  const collapsed = sidebarCollapsed;
+  const collapsedOnline = collapsed && onlineMembers.length
+    ? `<div class="sidebar-online" style="text-align:center;padding:14px 8px 0 8px;">
+        ${onlineMembers.map((p) => `<div class="avatar" title="${esc(p.name)}" style="background:${avatarColorFor(p.email)};margin:2px auto;">${esc((p.name || "?").trim().charAt(0).toUpperCase())}</div>`).join("")}
+      </div>`
+    : "";
+
   document.getElementById("sidebar").innerHTML = `
-    <div class="sidebar-logo">
+    <div class="sidebar-logo" style="${collapsed ? "justify-content:center;padding:0 8px 14px 8px;" : ""}">
       <div class="logo">G</div>
-      <div>
-        <div class="t1">Rider Equipment<br/>Tracker</div>
-      </div>
+      ${!collapsed ? `<div><div class="t1">Rider Equipment<br/>Tracker</div></div>` : ""}
     </div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="${collapsed ? "Expand sidebar" : "Collapse sidebar"}">${collapsed ? "»" : "« Collapse"}</button>
     <div class="sidebar-nav">
-      ${TABS.map((tb) => `<button class="sidebar-link ${currentTab === tb.id ? "active" : ""}" onclick="setTab('${tb.id}')"><span class="ic">${tb.icon}</span>${tb.label}</button>`).join("")}
+      ${visibleTabs().map((tb) => `<button class="sidebar-link ${currentTab === tb.id ? "active" : ""}" onclick="setTab('${tb.id}')" title="${esc(tb.label)}"><span class="ic">${tb.icon}</span>${!collapsed ? `<span class="lbl">${tb.label}</span>` : ""}</button>`).join("")}
     </div>
-    ${onlineHtml}`;
+    ${!collapsed ? onlineHtml : collapsedOnline}
+    <div style="padding:${collapsed ? "10px 8px" : "12px 18px"};border-top:1px solid var(--border);margin-top:8px;${collapsed ? "text-align:center;" : ""}">
+      ${!collapsed && currentUser ? `<div class="dim" style="font-size:11px;margin-bottom:6px;">Signed in as <strong style="color:var(--text);">${esc(currentUser.name)}</strong>${currentUser.isAdmin ? ` <span class="accent-text">(admin)</span>` : ""}</div>` : ""}
+      <button class="btn btn-outline" style="padding:6px 10px;font-size:11.5px;width:100%;" onclick="logout()" title="Log out">${collapsed ? "⏻" : "Log out"}</button>
+    </div>`;
+  document.getElementById("sidebar").classList.toggle("collapsed", collapsed);
 }
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  localStorage.setItem("sidebarCollapsed", String(sidebarCollapsed));
+  render();
+}
+window.toggleSidebar = toggleSidebar;
 
 /* ---------------- topbar ---------------- */
 function renderTopbar() {
-  const tb = TABS.find((t) => t.id === currentTab);
+  const tb = visibleTabs().find((t) => t.id === currentTab);
   document.getElementById("topbar").innerHTML = `
     <div>
       <div class="page-title">${tb ? tb.label : ""}</div>
@@ -652,8 +782,13 @@ window.submitIssuance = submitIssuance;
 
 function renderTabContent() {
   const el = document.getElementById("content");
+  if (currentUser && !currentUser.isAdmin && !NON_ADMIN_TABS.includes(currentTab)) {
+    el.innerHTML = `<div class="card">You don't have access to this section. Ask an admin if you need it.</div>`;
+    return;
+  }
   switch (currentTab) {
     case "issue": el.innerHTML = renderIssueTab(); afterIssueRender(); break;
+    case "reports": el.innerHTML = renderReportsTab(); break;
     case "stock": el.innerHTML = renderStockTab(); break;
     case "items": el.innerHTML = renderItemsTab(); break;
     case "centres": el.innerHTML = renderCentresTab(); break;
@@ -662,6 +797,75 @@ function renderTabContent() {
     case "team": el.innerHTML = renderTeamTab(); break;
     case "log": el.innerHTML = renderLogTab(); break;
   }
+}
+
+/* ---------------- REPORTS TAB ---------------- */
+function renderReportsTab() {
+  const rows = expandStockRows(STATE.items);
+  const centreNames = STATE.centres.map((c) => c.name);
+
+  function issuedQtyFor(centre, key) {
+    return STATE.issuances
+      .filter((i) => i.centre === centre && stockKey(i.sku, i.size || null) === key)
+      .reduce((s, i) => s + (Number(i.qty) || 0), 0);
+  }
+
+  const summary = centreNames.map((centre) => {
+    const stockRow = STATE.stockCentres[centre] || {};
+    const stockTotal = Object.values(stockRow).reduce((s, v) => s + (Number(v) || 0), 0);
+    const issuedTotal = STATE.issuances.filter((i) => i.centre === centre).reduce((s, i) => s + (Number(i.qty) || 0), 0);
+    return { centre, stockTotal, issuedTotal };
+  });
+
+  const grandStock = summary.reduce((s, r) => s + r.stockTotal, 0);
+  const grandIssued = summary.reduce((s, r) => s + r.issuedTotal, 0);
+
+  const summaryRows = summary.length ? summary.map((r) => `
+    <tr>
+      <td style="font-weight:700;">${esc(r.centre)}</td>
+      <td>${r.stockTotal}</td>
+      <td class="accent-text">${r.issuedTotal}</td>
+    </tr>`).join("") : `<tr><td colspan="3">No Glover Centres yet.</td></tr>`;
+
+  const detailRows = [];
+  centreNames.forEach((centre) => {
+    rows.forEach((r) => {
+      const stockQty = (STATE.stockCentres[centre] || {})[r.key] || 0;
+      const issuedQty = issuedQtyFor(centre, r.key);
+      if (stockQty > 0 || issuedQty > 0) detailRows.push({ centre, label: r.label, stockQty, issuedQty });
+    });
+  });
+  const detailHtml = detailRows.length ? detailRows.map((d) => `
+    <tr>
+      <td>${esc(d.centre)}</td>
+      <td>${esc(d.label)}</td>
+      <td>${d.stockQty}</td>
+      <td class="accent-text">${d.issuedQty}</td>
+    </tr>`).join("") : `<tr><td colspan="4">No stock or issuance activity recorded yet.</td></tr>`;
+
+  return `
+    <div style="font-weight:800;font-size:15px;">📊 Stock &amp; Issuance Report</div>
+    <div class="grid-2">
+      <div class="card"><div class="muted" style="font-size:12px;">Total stock on hand (all centres)</div><div style="font-size:22px;font-weight:800;">${grandStock}</div></div>
+      <div class="card"><div class="muted" style="font-size:12px;">Total units issued to date</div><div style="font-size:22px;font-weight:800;color:var(--accent);">${grandIssued}</div></div>
+    </div>
+
+    <div>
+      <div style="font-weight:800;font-size:14px;margin-bottom:8px;">By Glover Centre</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Centre</th><th>Stock On Hand</th><th>Issued To Date</th></tr></thead>
+        <tbody>${summaryRows}</tbody>
+      </table></div>
+    </div>
+
+    <div>
+      <div style="font-weight:800;font-size:14px;margin-bottom:8px;">By Centre &amp; Item</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Centre</th><th>Item</th><th>Stock On Hand</th><th>Issued To Date</th></tr></thead>
+        <tbody>${detailHtml}</tbody>
+      </table></div>
+    </div>
+  `;
 }
 
 /* ---------------- STOCK TAB ---------------- */
