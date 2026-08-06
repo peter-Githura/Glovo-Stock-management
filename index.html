@@ -12,7 +12,7 @@
     --border: #2a2a2a; --card: #1a1a1a; --input-bg: #1e1e1e; --input-border: #333;
     --text: #ffffff; --text-muted: #8a8a8a; --text-dim: #5a5a5a;
     --table-head: #1a1a1a; --table-row-border: #232323; --table-text: #e5e5e5;
-    --accent: #F2CC38; --accent-text: #141414; --green: #00A082; --danger: #E85D3F;
+    --accent: #F2CC38; --accent-ink: #F2CC38; --accent-text: #141414; --green: #00A082; --danger: #E85D3F;
     --danger-bg: #3a1414; --green-bg: #0f2e28;
   }
   [data-theme="light"] {
@@ -20,7 +20,7 @@
     --border: #e6e1d3; --card: #FFFFFF; --input-bg: #FFFFFF; --input-border: #d8d2c0;
     --text: #232016; --text-muted: #75705f; --text-dim: #a39d8a;
     --table-head: #F4F0E2; --table-row-border: #ece7d8; --table-text: #2c2818;
-    --accent: #F2CC38; --accent-text: #232016; --green: #00A082; --danger: #C8492F;
+    --accent: #F2CC38; --accent-ink: #8a6d0a; --accent-text: #232016; --green: #00A082; --danger: #C8492F;
     --danger-bg: #FBE7E1; --green-bg: #E3F4EF;
   }
   * { box-sizing: border-box; }
@@ -98,7 +98,7 @@
   .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
   .muted { color: var(--text-muted); }
   .dim { color: var(--text-dim); }
-  .accent-text { color: var(--accent); font-weight:700; }
+  .accent-text { color: var(--accent-ink); font-weight:700; }
   .green-text { color: var(--green); font-weight:700; }
   .danger-text { color: var(--danger); font-weight:700; }
   .item-card { cursor:pointer; border:2px solid var(--border); background:var(--card); border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
@@ -391,6 +391,7 @@ async function heartbeat() {
 /* ---------------- login gate ---------------- */
 function renderLoginScreen() {
   document.getElementById("app-shell").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
   document.getElementById("login-screen").innerHTML = `
     <div class="login-card">
       <div class="login-logo">G</div>
@@ -423,6 +424,7 @@ async function attemptLogin() {
     localStorage.setItem("currentUser", JSON.stringify(currentUser));
     loginError = "";
     document.getElementById("login-screen").innerHTML = "";
+    document.getElementById("login-screen").style.display = "none";
     document.getElementById("app-shell").style.display = "flex";
     await initDashboard();
   } catch (e) {
@@ -445,6 +447,7 @@ async function bootstrap() {
     renderLoginScreen();
     return;
   }
+  document.getElementById("login-screen").style.display = "none";
   document.getElementById("app-shell").style.display = "flex";
   await initDashboard();
 }
@@ -847,7 +850,7 @@ function renderReportsTab() {
     <div style="font-weight:800;font-size:15px;">📊 Stock &amp; Issuance Report</div>
     <div class="grid-2">
       <div class="card"><div class="muted" style="font-size:12px;">Total stock on hand (all centres)</div><div style="font-size:22px;font-weight:800;">${grandStock}</div></div>
-      <div class="card"><div class="muted" style="font-size:12px;">Total units issued to date</div><div style="font-size:22px;font-weight:800;color:var(--accent);">${grandIssued}</div></div>
+      <div class="card"><div class="muted" style="font-size:12px;">Total units issued to date</div><div style="font-size:22px;font-weight:800;color:var(--accent-ink);">${grandIssued}</div></div>
     </div>
 
     <div>
