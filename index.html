@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Rider Equipment Tracker</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAE8ElEQVR4nO2Xy09cZRiHn+/c5grMDMwwDJVyaaWxLYVCbY3GeEka48JEo3bRpYnpThdudNuNiQsT3br3D6g2Gts0TUha2gqJESmXKVNguBSYYZgLnJlzvs8FjAkpl6nRsOm3OZvv8rzv75f3fY9QSikOcWmH+fhzAADjWQ8opajaRgix4/tvljhsE9acgSpnMpkkk8ngui62vYlleRgYGMA0zR37a81KTR5QSiGEIJVKMTU1SSKRoKO9nd7ePkrFApMT4wgBQmztexZJDgSoap5OzzI58ZD1XJZCIU96fp6GUIgLr77OTHoZB0GxrFEo2SwsrVKpODUB7OsB13XRdZ0HDx7wZDWHPxDi3r279PedYXFhhlx2he6OZpJjw3QeCeBVGUZTJVJzK1z65Et6+84hpUTT9o5zTw8oJdF1nVzJZXDwNi3WHPHYBm80LhFc+oUub5mhvOSMneftAZPNsuTmnz6CdoHPBsYZevgmvX3nOEiNXQGUAiE0kskk4zeucl7dZr3cTm/Mwd40KTsaBUfDwc/9OS+BFYfkvEsTYwSMRprjrTgTQ2TzVwjXmdULawOoKnLj5i3u/PQdLzePseFp4lG2gWsjEl1IfKZC0wQvxXLUq0esZErY+RbOHFviznw9q9kCrWKY6ekk4Z4TSKXQagUQQmDbZaYmxnj/w0tE1Rjm5iNeU3MI3cS0XBAK0EAqWHdp8eaYyYeZzYeJ+zNMZ6N01c9yd+o+Z3tO7CvDU+5QSmFZFl1dnTQlXqQ5HiBiLWJZOqbhICuCgm2C44JrIqkDzUMimGOxWE/Mn2M2a9IUlNjp25TK+9eEXe0pBDQ2RZlMLYMVx7GLIGCwFKI/3c/59FmuLHezJk00y49hWsSDJdY3vZi6pFwusyGDROUwqdQMIJBS1g4AcLS9k+zaOo63G80TAenw+eoxWg2bH5pHGSv7+XTlONLwo5k+wn4Hr1lhzQ4QsdaYzoXoqnvMzNTI3vnfDWArXYpIOILQDZYLOlr9MVBl4rpDi17mlbolvo6kuFYM89gJYZheLNMl5nnCQjFEPLDG9KqXlvoKudQtKhI0bXcZds3AVumFaLSZ9FIeQqdQUvJtdIpfN8JcXTzJj8UoncYGcbOCEh48jac52n6cTFEnYDrkSy66ZRFz7jEztwwIdqt5e0ggtmXoYGFpBRXoRmoNHDfWGWwd4XopwvfZNr4IzeHTK0ijHt3wEfEV0YWkUPEQ0PNcH+/C587xeGL4n8BqAqi6NhaL47qQ2Qig17XhOoo20+a3xB98FZnmgjcPUiHMIJRm8JT+IhKoMJ+vA93DC0daGV1pYXJqavveGiUAkFKi6xqRpibSKxsQ7kGTNo5rENQcykrj50IEiUKiITxNmL4wHaF1ZvKNYIbRnQzhEx/zwUeXt6N/mmDPXlDNQtvRTh6ODtPTdgrhjWEYBrjrfBOfBiFBgaYq4AiUtAmKIplcjFT5NA39l3nvrXcw9ilEBwK0JBLcHxpktZDA51jYq7PYrsXapkmp4qGClw3px9Z6kPpFVIOH0xfbOHnuXTraWgC13Qp2p9i3HVcHkZHh30lNTxC0HHQh0ax6fA1xQo2teL1eTMuiLlhHwK/v0FQpiRD7jxw1z4SO42IY+gG7JCiFUgJqnIyeaShVausBAMXOBwTs2XL/M4D/Yx36j8lzgEMH+BtE5zG3N9yOlwAAAABJRU5ErkJggg==" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -66,7 +68,13 @@
   #topbar .page-title { font-weight:800; font-size:17px; letter-spacing:-0.01em; }
   #topbar .page-sub { font-size:12px; color: var(--text-muted); margin-top:2px; }
   .toggle-btn { display:flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--border); color:var(--text); border-radius:20px; padding:7px 12px; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; }
-  .content { padding: 24px; display:flex; flex-direction:column; gap:20px; max-width: 1100px; }
+  .content { padding: 24px; display:flex; flex-direction:column; gap:20px; max-width: 1420px; }
+  .issue-layout { display:grid; grid-template-columns: 1fr 300px; gap:24px; align-items:start; }
+  .issue-layout-main { display:flex; flex-direction:column; gap:20px; min-width:0; }
+  .issue-layout-panel { display:flex; flex-direction:column; gap:16px; }
+  @media (max-width: 880px) {
+    .issue-layout { grid-template-columns: 1fr; }
+  }
   @media (max-width: 760px) {
     #app-shell { flex-direction: column; }
     #sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; align-items:center; }
@@ -168,9 +176,14 @@ const TABS = [
   { id: "team", label: "Team", icon: "✅" },
   { id: "log", label: "Issuance Log", icon: "📅" },
 ];
-const NON_ADMIN_TABS = ["issue", "reports"];
+function isAdmin() {
+  return !!(currentUser && currentUser.isAdmin);
+}
 function visibleTabs() {
-  return currentUser && currentUser.isAdmin ? TABS : TABS.filter((t) => NON_ADMIN_TABS.includes(t.id));
+  return TABS; // everyone sees every tab; editing is restricted per-tab instead
+}
+function viewOnlyBanner() {
+  return `<div class="card" style="border-color:var(--danger);font-size:12.5px;">🔒 View only — you can look around here, but only an admin can make changes. Everything on <strong>Issue Item</strong> is still yours to use freely.</div>`;
 }
 
 /* ---------------- helpers ---------------- */
@@ -243,8 +256,6 @@ function daysAgo(iso) {
 /* ---------------- state ---------------- */
 let STATE = { riders: [], centres: [], items: [], stockWarehouse: {}, stockCentres: {}, issuances: [], walletLedger: [], staff: [] };
 let currentTab = "issue";
-let staffProfile = JSON.parse(localStorage.getItem("staffProfile") || "null");
-let editingStaffProfile = !staffProfile;
 let darkMode = localStorage.getItem("darkMode") !== "false";
 let sidebarCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
 let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
@@ -262,7 +273,6 @@ let ridersDraft = { bulk: "", search: "", singleId: "", singleName: "" };
 let walletDraft = { search: "", settlingId: null, settleAmount: "", settleCode: "" };
 let teamDraft = { search: "" };
 let logDraft = { weekFilter: "all", centreFilter: "all" };
-let staffFormDraft = { name: staffProfile?.name || "", email: staffProfile?.email || "" };
 
 /* ---------------- API ---------------- */
 async function apiCall(action, payload) {
@@ -382,10 +392,10 @@ async function initDashboard() {
 }
 
 async function heartbeat() {
-  if (!staffProfile) return;
+  if (!currentUser || !currentUser.email) return;
   try {
-    await apiCall("upsertStaff", { email: staffProfile.email, name: staffProfile.name });
-  } catch (e) { /* ignore */ }
+    await apiCall("upsertStaff", { email: currentUser.email, name: currentUser.name });
+  } catch (e) { /* ignore — e.g. email column blank or not a recognized format */ }
 }
 
 /* ---------------- login gate ---------------- */
@@ -462,7 +472,6 @@ function render() {
 }
 
 function setTab(id) {
-  if (currentUser && !currentUser.isAdmin && !NON_ADMIN_TABS.includes(id)) return;
   currentTab = id;
   render();
 }
@@ -535,50 +544,79 @@ function renderTopbar() {
 }
 
 /* ---------------- ISSUE TAB ---------------- */
-function renderStaffBadge() {
-  if (staffProfile && !editingStaffProfile) {
-    return `<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div style="font-size:13px;"><span class="muted">Issued by </span><span class="accent-text">${esc(staffProfile.name)}</span><span class="muted"> · ${esc(staffProfile.email)}</span></div>
-      <button class="btn btn-outline" style="padding:5px 10px;font-size:12px;" onclick="switchStaff()">Not you? Switch</button>
-    </div>`;
-  }
-  return `<div class="card" style="border-color:var(--accent);">
-    <div class="muted" style="font-size:12.5px;margin-bottom:10px;">Set this up once on this device — every issuance you record afterwards gets tagged with your name and email automatically, with no need to re-enter it. Only @glovoapp.com email addresses are accepted.</div>
-    <div class="grid-3">
-      <div class="field"><label>Your full name</label><input value="${esc(staffFormDraft.name)}" oninput="staffFormDraft.name=this.value" placeholder="Your full name" /></div>
-      <div class="field"><label>Your Gmail / email</label><input value="${esc(staffFormDraft.email)}" oninput="staffFormDraft.email=this.value" placeholder="you@glovoapp.com" /></div>
-      <button class="btn btn-accent" style="height:40px;align-self:end;" onclick="saveStaffProfile()">Save</button>
-    </div>
+function renderIssuedByBadge() {
+  const emailNote = currentUser.email
+    ? esc(currentUser.email)
+    : `<span class="dim">no email on file — ask an admin to add one in the Users sheet</span>`;
+  return `<div class="card" style="display:flex;align-items:center;gap:8px;">
+    <span class="muted">Issued by</span>
+    <span class="accent-text">${esc(currentUser.name)}</span>
+    <span class="muted">·</span>
+    ${emailNote}
   </div>`;
 }
-function switchStaff() {
-  staffFormDraft = { name: staffProfile.name, email: staffProfile.email };
-  editingStaffProfile = true;
-  render();
-}
-window.switchStaff = switchStaff;
-async function saveStaffProfile() {
-  const name = staffFormDraft.name.trim();
-  const email = staffFormDraft.email.trim().toLowerCase();
-  if (!name) return showToast("Enter your name.", "error");
-  if (!GLOVO_EMAIL_RE.test(email)) return showToast("Use your @glovoapp.com email address.", "error");
-  staffProfile = { name, email };
-  localStorage.setItem("staffProfile", JSON.stringify(staffProfile));
-  editingStaffProfile = false;
-  showToast(`You're now recording issuances as ${name}.`);
-  render();
-  try { await apiCall("upsertStaff", { email, name }); await refreshData(); render(); } catch (e) { showToast(e.message, "error"); }
-}
-window.saveStaffProfile = saveStaffProfile;
 
 function currentIssueItem() { return STATE.items.find((i) => i.sku === issueDraft.itemSku); }
 function currentHasSizes() { const it = currentIssueItem(); return it && it.sizes && it.sizes.length > 0; }
 function currentStockKey() { return stockKey(issueDraft.itemSku, currentHasSizes() ? issueDraft.size : null); }
 function centreQty(centre, key) { return (STATE.stockCentres[centre] && STATE.stockCentres[centre][key]) || 0; }
 
+function renderIssuePanel(it) {
+  // Bag issuance breakdown by reason (Damaged / Dirty / Stolen / Competitor)
+  const reasonCounts = {};
+  REPLACEMENT_REASONS.forEach((r) => (reasonCounts[r] = 0));
+  STATE.issuances.forEach((i) => {
+    if (i.replacementReason && reasonCounts.hasOwnProperty(i.replacementReason)) {
+      reasonCounts[i.replacementReason] += Number(i.qty) || 0;
+    }
+  });
+  const maxReason = Math.max(1, ...Object.values(reasonCounts));
+  const reasonColors = { "Damaged Bag": "#E85D3F", "Dirty Bag": "#7A6A1E", "Stolen": "#C8492F", "Competitor": "#B14FD8" };
+  const totalBagIssuances = Object.values(reasonCounts).reduce((s, v) => s + v, 0);
+
+  const chartHtml = totalBagIssuances > 0 ? REPLACEMENT_REASONS.map((r) => {
+    const val = reasonCounts[r];
+    const pct = Math.round((val / maxReason) * 100);
+    return `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px;">
+          <span class="muted">${esc(r)}</span><span style="font-weight:700;">${val}</span>
+        </div>
+        <div style="background:var(--table-head);border-radius:5px;height:8px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${reasonColors[r]};"></div>
+        </div>
+      </div>`;
+  }).join("") : `<div class="dim" style="font-size:12px;">No bag replacements logged yet.</div>`;
+
+  // Live stock for the currently selected item/size across warehouse + every centre
+  const key = currentStockKey();
+  const whQty = STATE.stockWarehouse[key] || 0;
+  const centreRowsHtml = STATE.centres.length ? STATE.centres.map((c) => {
+    const qty = (STATE.stockCentres[c.name] || {})[key] || 0;
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--table-row-border);font-size:12.5px;">
+      <span>${esc(c.name)}</span><span style="font-weight:700;${qty === 0 ? "color:var(--danger);" : ""}">${qty}</span>
+    </div>`;
+  }).join("") : `<div class="dim" style="font-size:12px;">No Glover Centres yet.</div>`;
+
+  return `
+    <div class="card">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:12px;">📊 Bag Issuance by Reason</div>
+      ${chartHtml}
+    </div>
+    <div class="card">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:2px;">📦 Stock Levels</div>
+      <div class="dim" style="font-size:11px;margin-bottom:10px;">${esc(it.name)}${currentHasSizes() && issueDraft.size ? ` (${esc(issueDraft.size)})` : ""}</div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:2px solid var(--border);font-size:12.5px;margin-bottom:2px;">
+        <span style="font-weight:700;">🏭 Warehouse</span><span style="font-weight:800;${whQty === 0 ? "color:var(--danger);" : "color:var(--green);"}">${whQty}</span>
+      </div>
+      ${centreRowsHtml}
+    </div>
+  `;
+}
+
 function renderIssueTab() {
   const it = currentIssueItem();
-  if (!it) return renderStaffBadge() + `<div class="muted">No items in the catalog yet — add one on the Items tab.</div>`;
+  if (!it) return renderIssuedByBadge() + `<div class="muted">No items in the catalog yet — add one on the Items tab.</div>`;
   const hasSizes = currentHasSizes();
   const bagSelected = isBagItem(it);
   const week = isoWeekLabel(issueDraft.date);
@@ -633,7 +671,9 @@ function renderIssueTab() {
     : `<div style="display:flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid var(--green);border-radius:8px;padding:10px 12px;font-size:12.5px;">🎁 No charge — this item is issued free of charge, no amount or transaction code needed.</div>`;
 
   return `
-    ${renderStaffBadge()}
+    <div class="issue-layout">
+    <div class="issue-layout-main">
+    ${renderIssuedByBadge()}
     <div class="grid-2">
       <div class="field"><label>Date of Issuance</label>
         <input type="date" value="${issueDraft.date}" onchange="issueDraft.date=this.value; setTab('issue')" />
@@ -689,6 +729,11 @@ function renderIssueTab() {
     </div>
 
     <button class="btn btn-accent" style="padding:13px 20px;font-size:14px;" onclick="submitIssuance()">📋 Record Issuance</button>
+    </div>
+    <div class="issue-layout-panel">
+      ${renderIssuePanel(it)}
+    </div>
+    </div>
   `;
 }
 
@@ -736,7 +781,6 @@ function selectRider(id) {
 window.selectRider = selectRider;
 
 async function submitIssuance() {
-  if (!staffProfile) return showToast("Set who you are (name + glovoapp.com email) before recording an issuance.", "error");
   if (!issueDraft.selectedRider) return showToast("Search and select a rider ID first.", "error");
   const it = currentIssueItem();
   const hasSizes = currentHasSizes();
@@ -758,7 +802,7 @@ async function submitIssuance() {
     riderId: issueDraft.selectedRider.id, riderName: issueDraft.selectedRider.name,
     sku: issueDraft.itemSku, itemName: it.name, size: hasSizes ? issueDraft.size : "",
     centre: issueDraft.centre, qty: issueDraft.qty,
-    issuedByName: staffProfile.name, issuedByEmail: staffProfile.email,
+    issuedByName: currentUser.name, issuedByEmail: currentUser.email,
     amount: numAmount, paymentMethod: issueDraft.paymentMethod === "free" ? "free" : (numAmount > 0 ? issueDraft.paymentMethod : "n/a"),
     transactionCode: issueDraft.paymentMethod === "paid" ? issueDraft.transactionCode.trim() : "",
     replacementReason: bagSelected ? issueDraft.replacementReason : "",
@@ -767,7 +811,7 @@ async function submitIssuance() {
 
   try {
     await apiCall("recordIssuance", payload);
-    await apiCall("upsertStaff", { email: staffProfile.email, name: staffProfile.name });
+    try { await apiCall("upsertStaff", { email: currentUser.email, name: currentUser.name }); } catch (e2) { /* presence update is best-effort, don't block on it */ }
     const paymentNote = payload.paymentMethod === "free" ? " Issued free of charge."
       : numAmount > 0 ? (payload.paymentMethod === "wallet" ? ` ${formatKES(numAmount)} added to rider wallet (unpaid).` : ` ${formatKES(numAmount)} paid, txn ${payload.transactionCode}.`) : "";
     const reasonNote = bagSelected ? ` Reason: ${payload.replacementReason}${payload.replacementReason === "Competitor" ? ` (${payload.competitorName})` : ""}.` : "";
@@ -785,10 +829,6 @@ window.submitIssuance = submitIssuance;
 
 function renderTabContent() {
   const el = document.getElementById("content");
-  if (currentUser && !currentUser.isAdmin && !NON_ADMIN_TABS.includes(currentTab)) {
-    el.innerHTML = `<div class="card">You don't have access to this section. Ask an admin if you need it.</div>`;
-    return;
-  }
   switch (currentTab) {
     case "issue": el.innerHTML = renderIssueTab(); afterIssueRender(); break;
     case "reports": el.innerHTML = renderReportsTab(); break;
@@ -873,6 +913,8 @@ function renderReportsTab() {
 
 /* ---------------- STOCK TAB ---------------- */
 function renderStockTab() {
+  const readOnly = !isAdmin();
+  const dis = readOnly ? "disabled" : "";
   const rows = expandStockRows(STATE.items);
   if (!stockDraft.transferKey && rows.length) stockDraft.transferKey = rows[0].key;
   if (!stockDraft.transferCentre && STATE.centres.length) stockDraft.transferCentre = STATE.centres[0].name;
@@ -883,7 +925,7 @@ function renderStockTab() {
       : `<div class="item-badge" style="height:48px;background:${row.color}33;color:${row.color};border-radius:6px;margin-bottom:8px;">${esc(row.name.charAt(0))}</div>`;
     return `<div class="card">${media}
       <div style="font-size:12px;font-weight:700;margin-bottom:8px;">${esc(row.name)}${row.size ? ` <span class="accent-text">· ${esc(row.size)}</span>` : ""}</div>
-      <input type="number" min="0" value="${STATE.stockWarehouse[row.key] ?? 0}" onchange="setWarehouseDraft('${row.key}', this.value)" />
+      <input type="number" min="0" value="${STATE.stockWarehouse[row.key] ?? 0}" onchange="setWarehouseDraft('${row.key}', this.value)" ${dis} />
     </div>`;
   }).join("");
 
@@ -892,49 +934,78 @@ function renderStockTab() {
 
   const centreRowsHtml = STATE.centres.map((c) => {
     const stockRow = STATE.stockCentres[c.name] || {};
-    return `<tr><td>${esc(c.name)}</td>${rows.map((r) => `<td>${stockRow[r.key] || 0}</td>`).join("")}</tr>`;
+    return `<tr><td style="font-weight:700;">${esc(c.name)}</td>${rows.map((r) => {
+      const draftKey = c.name + "::" + r.key;
+      const val = stockDraft.centreEdits.hasOwnProperty(draftKey) ? stockDraft.centreEdits[draftKey] : (stockRow[r.key] || 0);
+      return `<td><input type="number" min="0" value="${val}" style="width:76px;padding:5px 8px;font-size:12.5px;" oninput="setCentreStockDraft('${jsEsc(c.name)}','${jsEsc(r.key)}', this.value)" ${dis} /></td>`;
+    }).join("")}</tr>`;
   }).join("");
 
   return `
+    ${readOnly ? viewOnlyBanner() : ""}
     <section>
       <div style="font-weight:800;font-size:15px;margin-bottom:10px;">📦 Warehouse Stock Balance</div>
       <div class="grid-auto-140">${warehouseCards}</div>
-      <button class="btn btn-green" style="margin-top:12px;" onclick="saveAllWarehouse()">💾 Save Warehouse Balance</button>
+      ${readOnly ? "" : `<button class="btn btn-green" style="margin-top:12px;" onclick="saveAllWarehouse()">💾 Save Warehouse Balance</button>`}
     </section>
 
     <section>
       <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🔁 Order From Warehouse → Glover Centre</div>
       <div style="display:grid;grid-template-columns:1.4fr 1.4fr .8fr auto;gap:12px;align-items:end;">
         <div class="field"><label>Glover Centre</label>
-          <select onchange="stockDraft.transferCentre=this.value">
+          <select onchange="stockDraft.transferCentre=this.value" ${dis}>
             ${STATE.centres.map((c) => `<option value="${esc(c.name)}" ${stockDraft.transferCentre === c.name ? "selected" : ""}>${esc(c.name)}</option>`).join("")}
           </select>
         </div>
         <div class="field"><label>Item</label>
-          <select onchange="stockDraft.transferKey=this.value; setTab('stock')">
+          <select onchange="stockDraft.transferKey=this.value; setTab('stock')" ${dis}>
             ${rows.map((r) => `<option value="${esc(r.key)}" ${stockDraft.transferKey === r.key ? "selected" : ""}>${esc(r.label)} (${esc(r.sku)})</option>`).join("")}
           </select>
         </div>
         <div class="field"><label>Qty</label>
-          <input type="number" min="1" value="${stockDraft.transferQty}" oninput="stockDraft.transferQty=parseInt(this.value||'1',10)" />
+          <input type="number" min="1" value="${stockDraft.transferQty}" oninput="stockDraft.transferQty=parseInt(this.value||'1',10)" ${dis} />
         </div>
-        <button class="btn btn-accent" style="height:40px;" onclick="orderFromWarehouse()">Transfer</button>
+        ${readOnly ? "" : `<button class="btn btn-accent" style="height:40px;" onclick="orderFromWarehouse()">Transfer</button>`}
       </div>
       <div class="muted" style="font-size:12px;margin-top:8px;">Warehouse currently has ${whQty} unit(s) of ${transferRow ? esc(transferRow.label) : ""}.</div>
     </section>
 
     <section>
       <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🏢 Glover Centre Stock Balance</div>
+      <div class="dim" style="font-size:11.5px;margin-bottom:10px;">Edit these directly to match what's physically at each centre — this does not affect warehouse stock. Use "Order From Warehouse" above only when units are actually being sent out from the warehouse.</div>
       <div class="table-wrap"><table>
         <thead><tr><th>Centre</th>${rows.map((r) => `<th>${esc(r.label)}</th>`).join("")}</tr></thead>
         <tbody>${centreRowsHtml}</tbody>
       </table></div>
+      ${readOnly ? "" : `<button class="btn btn-green" style="margin-top:12px;" onclick="saveCentreStockEdits()">💾 Save Centre Stock Balance</button>`}
     </section>
   `;
 }
-let stockDraft = { warehouseEdits: {}, transferCentre: "", transferKey: "", transferQty: 1 };
+let stockDraft = { warehouseEdits: {}, centreEdits: {}, transferCentre: "", transferKey: "", transferQty: 1 };
 function setWarehouseDraft(key, val) { stockDraft.warehouseEdits[key] = parseInt(val || "0", 10); }
 window.setWarehouseDraft = setWarehouseDraft;
+function setCentreStockDraft(centre, key, val) { stockDraft.centreEdits[centre + "::" + key] = parseInt(val || "0", 10); }
+window.setCentreStockDraft = setCentreStockDraft;
+async function saveCentreStockEdits() {
+  const edits = stockDraft.centreEdits;
+  const draftKeys = Object.keys(edits);
+  if (!draftKeys.length) return showToast("No changes to save.", "error");
+  try {
+    for (const dk of draftKeys) {
+      // Draft keys are "<centre>::<itemKey>", and itemKey can itself be
+      // "SKU::SIZE" for sized items — split on the FIRST "::" only, since
+      // centre names never contain "::", to correctly separate the two.
+      const firstSep = dk.indexOf("::");
+      const centre = dk.slice(0, firstSep);
+      const key = dk.slice(firstSep + 2);
+      await apiCall("setCentreStock", { centre, key, qty: edits[dk] });
+    }
+    stockDraft.centreEdits = {};
+    showToast("Centre stock balance updated.");
+    await refreshData(); render();
+  } catch (e) { showToast(e.message, "error"); }
+}
+window.saveCentreStockEdits = saveCentreStockEdits;
 async function saveAllWarehouse() {
   const edits = stockDraft.warehouseEdits;
   const keys = Object.keys(edits);
@@ -960,12 +1031,13 @@ window.orderFromWarehouse = orderFromWarehouse;
 
 /* ---------------- ITEMS TAB ---------------- */
 function renderItemsTab() {
+  const readOnly = !isAdmin();
   const cards = STATE.items.map((it) => {
     const media = it.image
       ? `<img src="${esc(it.image)}" onerror="this.style.display='none'" style="width:100%;height:64px;object-fit:cover;border-radius:8px;" alt="${esc(it.name)}" />`
       : `<div class="item-badge" style="background:${it.color}33;color:${it.color};">${esc(it.name.charAt(0))}</div>`;
     return `<div class="item-card" style="cursor:default;position:relative;">
-      ${it.custom ? `<span onclick="removeItem('${jsEsc(it.sku)}')" style="position:absolute;top:8px;right:8px;cursor:pointer;color:var(--danger);">✕</span>` : ""}
+      ${it.custom && !readOnly ? `<span onclick="removeItem('${jsEsc(it.sku)}')" style="position:absolute;top:8px;right:8px;cursor:pointer;color:var(--danger);">✕</span>` : ""}
       ${media}
       <div style="font-size:12.5px;font-weight:700;">${esc(it.name)}</div>
       <div class="dim" style="font-size:10px;">${esc(it.sku)}</div>
@@ -976,7 +1048,7 @@ function renderItemsTab() {
 
   return `
     <div style="font-weight:800;font-size:15px;">📦 Item Catalog (${STATE.items.length})</div>
-    <div class="card muted" style="border-color:var(--accent);font-size:12.5px;">Items you add here appear immediately on the Issue Item picker for everyone using this tracker. This catalog is shared across all Glover Centres (it lives in the same Google Sheet).</div>
+    ${readOnly ? viewOnlyBanner() : `<div class="card muted" style="border-color:var(--accent);font-size:12.5px;">Items you add here appear immediately on the Issue Item picker for everyone using this tracker. This catalog is shared across all Glover Centres (it lives in the same Google Sheet).</div>
     <div class="card">
       <div class="grid-2">
         <div class="field"><label>SKU</label><input style="text-transform:uppercase;" value="${esc(itemsDraft.sku)}" oninput="itemsDraft.sku=this.value" placeholder="e.g. GLOVOGLOVES8F" /></div>
@@ -990,7 +1062,7 @@ function renderItemsTab() {
         <div class="field"><label>Badge Colour</label><input type="color" value="${itemsDraft.color}" oninput="itemsDraft.color=this.value" /></div>
       </div>
       <button class="btn btn-accent" style="margin-top:12px;" onclick="addCustomItem()">➕ Add to Catalog</button>
-    </div>
+    </div>`}
     <div class="grid-auto-140">${cards}</div>
   `;
 }
@@ -1016,21 +1088,25 @@ window.removeItem = removeItem;
 
 /* ---------------- CENTRES TAB ---------------- */
 function renderCentresTab() {
+  const readOnly = !isAdmin();
   const rows = STATE.centres.map((c) => `
     <tr>
       <td>${esc(c.name)}</td>
-      <td><input value="${esc(c.poc)}" placeholder="Add POC name…" style="padding:6px 10px;" onchange="updateCentrePoc('${jsEsc(c.name)}', this.value)" /></td>
-      <td><span style="cursor:pointer;color:var(--danger);" onclick="removeCentre('${jsEsc(c.name)}')">🗑</span></td>
+      <td>${readOnly
+        ? esc(c.poc || "—")
+        : `<input value="${esc(c.poc)}" placeholder="Add POC name…" style="padding:6px 10px;" onchange="updateCentrePoc('${jsEsc(c.name)}', this.value)" />`}</td>
+      <td>${readOnly ? "" : `<span style="cursor:pointer;color:var(--danger);" onclick="removeCentre('${jsEsc(c.name)}')">🗑</span>`}</td>
     </tr>`).join("");
 
   return `
     <div style="font-weight:800;font-size:15px;">🏢 Glover Centres &amp; Points of Contact</div>
+    ${readOnly ? viewOnlyBanner() : ""}
     <div class="table-wrap"><table><thead><tr><th>Centre</th><th>POC</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
+    ${readOnly ? "" : `<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
       <div class="field"><label>New Centre Name</label><input value="${esc(centresDraft.newName)}" oninput="centresDraft.newName=this.value" placeholder="e.g. Kitale" /></div>
       <div class="field"><label>POC</label><input value="${esc(centresDraft.newPoc)}" oninput="centresDraft.newPoc=this.value" placeholder="Optional" /></div>
       <button class="btn btn-green" style="height:40px;" onclick="addCentre()">➕ Add</button>
-    </div>
+    </div>`}
   `;
 }
 async function updateCentrePoc(name, poc) {
@@ -1056,6 +1132,7 @@ window.removeCentre = removeCentre;
 
 /* ---------------- RIDERS TAB ---------------- */
 function renderRidersTab() {
+  const readOnly = !isAdmin();
   const balances = allWalletBalances(STATE.walletLedger);
   const filtered = STATE.riders.filter((r) => r.id.toLowerCase().includes(ridersDraft.search.toLowerCase()) || r.name.toLowerCase().includes(ridersDraft.search.toLowerCase()));
   const rows = filtered.length ? filtered.map((r) => {
@@ -1064,12 +1141,13 @@ function renderRidersTab() {
       <td class="accent-text">${esc(r.id)}</td>
       <td>${esc(r.name)}</td>
       <td>${bal > 0 ? `<span class="danger-text">${formatKES(bal)}</span>` : `<span class="dim">Clear</span>`}</td>
-      <td><span style="cursor:pointer;color:var(--danger);" onclick="removeRider('${jsEsc(r.id)}')">🗑</span></td>
+      <td>${readOnly ? "" : `<span style="cursor:pointer;color:var(--danger);" onclick="removeRider('${jsEsc(r.id)}')">🗑</span>`}</td>
     </tr>`;
   }).join("") : `<tr><td colspan="4">No riders yet. Import your list above.</td></tr>`;
 
   return `
     <div style="font-weight:800;font-size:15px;">👥 Riders (${STATE.riders.length})</div>
+    ${readOnly ? viewOnlyBanner() : `
     <div class="grid-2">
       <div>
         <div class="field"><label>Bulk import — one per line: "RiderID, Rider Name"</label>
@@ -1090,20 +1168,21 @@ function renderRidersTab() {
         <div class="field"><label>Rider Name</label><input value="${esc(ridersDraft.singleName)}" oninput="ridersDraft.singleName=this.value" placeholder="e.g. Brian Otieno" /></div>
         <button class="btn btn-accent" style="margin-top:8px;" onclick="addSingleRider()">➕ Add Single Rider</button>
       </div>
-    </div>
+    </div>`}
     <div class="field"><label>Search riders</label><input value="${esc(ridersDraft.search)}" oninput="ridersDraft.search=this.value; renderRidersList()" placeholder="Search by ID or name…" /></div>
     <div class="table-wrap" style="max-height:300px;overflow-y:auto;"><table id="ridersTable"><thead><tr><th>Rider ID</th><th>Name</th><th>Wallet</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
   `;
 }
 function renderRidersList() {
   if (currentTab === "riders") {
+    const readOnly = !isAdmin();
     const balances = allWalletBalances(STATE.walletLedger);
     const filtered = STATE.riders.filter((r) => r.id.toLowerCase().includes(ridersDraft.search.toLowerCase()) || r.name.toLowerCase().includes(ridersDraft.search.toLowerCase()));
     const tbody = document.querySelector("#ridersTable tbody");
     if (!tbody) return;
     tbody.innerHTML = filtered.length ? filtered.map((r) => {
       const bal = balances[r.id] || 0;
-      return `<tr><td class="accent-text">${esc(r.id)}</td><td>${esc(r.name)}</td><td>${bal > 0 ? `<span class="danger-text">${formatKES(bal)}</span>` : `<span class="dim">Clear</span>`}</td><td><span style="cursor:pointer;color:var(--danger);" onclick="removeRider('${jsEsc(r.id)}')">🗑</span></td></tr>`;
+      return `<tr><td class="accent-text">${esc(r.id)}</td><td>${esc(r.name)}</td><td>${bal > 0 ? `<span class="danger-text">${formatKES(bal)}</span>` : `<span class="dim">Clear</span>`}</td><td>${readOnly ? "" : `<span style="cursor:pointer;color:var(--danger);" onclick="removeRider('${jsEsc(r.id)}')">🗑</span>`}</td></tr>`;
     }).join("") : `<tr><td colspan="4">No riders match.</td></tr>`;
   }
 }
@@ -1213,6 +1292,7 @@ window.removeRider = removeRider;
 
 /* ---------------- WALLET TAB ---------------- */
 function walletRowsHtml() {
+  const readOnly = !isAdmin();
   const balances = allWalletBalances(STATE.walletLedger);
   const rows = STATE.riders
     .map((r) => ({ ...r, balance: balances[r.id] || 0 }))
@@ -1220,7 +1300,7 @@ function walletRowsHtml() {
     .sort((a, b) => b.balance - a.balance);
 
   return rows.length ? rows.map((r) => {
-    const settleForm = walletDraft.settlingId === r.id ? `
+    const settleForm = !readOnly && walletDraft.settlingId === r.id ? `
       <tr><td colspan="4" style="background:var(--table-head);">
         <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
           <div class="field"><label>Amount paid (KES)</label><input type="number" min="0" value="${esc(walletDraft.settleAmount)}" oninput="walletDraft.settleAmount=this.value" placeholder="${r.balance}" /></div>
@@ -1232,7 +1312,7 @@ function walletRowsHtml() {
       <td class="accent-text">${esc(r.id)}</td>
       <td>${esc(r.name)}</td>
       <td>${r.balance > 0 ? `<span class="danger-text">${formatKES(r.balance)}</span>` : `<span class="dim">Clear</span>`}</td>
-      <td>${r.balance > 0 ? `<button class="btn btn-outline" style="padding:4px 10px;font-size:12px;border-color:var(--green);color:var(--green);" onclick="toggleSettle('${jsEsc(r.id)}')">${walletDraft.settlingId === r.id ? "Cancel" : "Settle"}</button>` : ""}</td>
+      <td>${!readOnly && r.balance > 0 ? `<button class="btn btn-outline" style="padding:4px 10px;font-size:12px;border-color:var(--green);color:var(--green);" onclick="toggleSettle('${jsEsc(r.id)}')">${walletDraft.settlingId === r.id ? "Cancel" : "Settle"}</button>` : ""}</td>
     </tr>${settleForm}`;
   }).join("") : `<tr><td colspan="4">No riders match.</td></tr>`;
 }
@@ -1243,6 +1323,7 @@ function filterWalletRows() {
 window.filterWalletRows = filterWalletRows;
 
 function renderWalletTab() {
+  const readOnly = !isAdmin();
   const balances = allWalletBalances(STATE.walletLedger);
   const totalOwed = Object.values(balances).reduce((s, v) => s + (v > 0 ? v : 0), 0);
 
@@ -1258,6 +1339,7 @@ function renderWalletTab() {
 
   return `
     <div style="font-weight:800;font-size:15px;">👛 Rider Wallet</div>
+    ${readOnly ? viewOnlyBanner() : ""}
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
       <div class="muted" style="font-size:12.5px;">Total outstanding across all riders</div>
       <div style="font-size:20px;font-weight:800;color:var(--danger);">${formatKES(totalOwed)}</div>
@@ -1287,19 +1369,20 @@ window.confirmSettle = confirmSettle;
 
 /* ---------------- TEAM TAB ---------------- */
 function teamRowsHtml() {
+  const readOnly = !isAdmin();
   const rows = [...STATE.staff]
     .filter((p) => p.email.toLowerCase().includes(teamDraft.search.toLowerCase()) || p.name.toLowerCase().includes(teamDraft.search.toLowerCase()))
     .sort((a, b) => (a.lastActive < b.lastActive ? 1 : -1));
 
   return rows.length ? rows.map((p) => {
     const d = daysAgo(p.lastActive);
-    const isMe = staffProfile && staffProfile.email === p.email;
+    const isMe = currentUser && currentUser.email === p.email;
     return `<tr>
       <td style="font-weight:700;">${esc(p.name)}${isMe ? ` <span class="accent-text">(you)</span>` : ""}</td>
       <td>${esc(p.email)}</td>
       <td>${p.firstSeen ? new Date(p.firstSeen).toLocaleDateString("en-GB") : "—"}</td>
       <td><span style="color:${d !== null && d <= 7 ? "var(--green)" : "var(--text-muted)"};font-weight:${d !== null && d <= 7 ? 700 : 400};">⏱ ${d === 0 ? "Today" : d === 1 ? "Yesterday" : d !== null ? d + " days ago" : "—"}</span></td>
-      <td><span style="cursor:pointer;color:var(--danger);" onclick="removeStaff('${jsEsc(p.email)}')">🗑</span></td>
+      <td>${readOnly ? "" : `<span style="cursor:pointer;color:var(--danger);" onclick="removeStaff('${jsEsc(p.email)}')">🗑</span>`}</td>
     </tr>`;
   }).join("") : `<tr><td colspan="5">No one has set up an "Issued by" identity yet.</td></tr>`;
 }
@@ -1310,10 +1393,12 @@ function filterTeamRows() {
 window.filterTeamRows = filterTeamRows;
 
 function renderTeamTab() {
+  const readOnly = !isAdmin();
   const activeLast7 = STATE.staff.filter((p) => { const d = daysAgo(p.lastActive); return d !== null && d <= 7; }).length;
 
   return `
     <div style="font-weight:800;font-size:15px;">✅ Team (${STATE.staff.length} live emails)</div>
+    ${readOnly ? viewOnlyBanner() : ""}
     <div class="card muted" style="border-color:var(--accent);font-size:12.5px;">This list is shared across every device using this tracker — anyone with access can see who's set up an "Issued by" identity, and when they last recorded an issuance.</div>
     <div class="grid-2">
       <div class="card"><div class="muted" style="font-size:12px;">Total registered</div><div style="font-size:22px;font-weight:800;">${STATE.staff.length}</div></div>
@@ -1331,6 +1416,7 @@ window.removeStaff = removeStaff;
 
 /* ---------------- LOG TAB ---------------- */
 function renderLogTab() {
+  const readOnly = !isAdmin();
   const weeks = Array.from(new Set(STATE.issuances.map((i) => i.week))).sort().reverse();
   const centreList = Array.from(new Set(STATE.issuances.map((i) => i.centre))).sort();
   const filtered = STATE.issuances.filter((i) =>
@@ -1349,11 +1435,12 @@ function renderLogTab() {
       <td>${i.replacementReason ? `<span style="color:${i.replacementReason === "Competitor" ? "var(--danger)" : "var(--text-muted)"};font-weight:${i.replacementReason === "Competitor" ? 700 : 400};">${esc(i.replacementReason)}${i.competitorName ? ` (${esc(i.competitorName)})` : ""}</span>` : `<span class="dim">—</span>`}</td>
       <td>${i.paymentMethod === "free" ? `<span class="accent-text">🎁 Free</span>` : !i.amount ? `<span class="dim">—</span>` : i.paymentMethod === "wallet" ? `<span class="danger-text">${formatKES(i.amount)} · Wallet</span>` : `<span class="green-text">${formatKES(i.amount)} · ${esc(i.transactionCode)}</span>`}</td>
       <td>${i.issuedByName ? esc(i.issuedByName) : `<span class="dim">—</span>`}</td>
-      <td><span style="cursor:pointer;color:var(--danger);" onclick="deleteIssuance('${jsEsc(i.id)}')">🗑</span></td>
+      <td>${readOnly ? "" : `<span style="cursor:pointer;color:var(--danger);" onclick="deleteIssuance('${jsEsc(i.id)}')">🗑</span>`}</td>
     </tr>`).join("") : `<tr><td colspan="10">No issuance records yet.</td></tr>`;
 
   return `
     <div style="font-weight:800;font-size:15px;">📅 Issuance Log</div>
+    ${readOnly ? `<div class="card" style="border-color:var(--danger);font-size:12.5px;">🔒 View only — you can see and export this log, but only an admin can delete entries.</div>` : ""}
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;">
       <div class="field"><label>Week</label><select style="min-width:140px;" onchange="logDraft.weekFilter=this.value; render()">
         <option value="all">All weeks</option>${weeks.map((w) => `<option value="${esc(w)}" ${logDraft.weekFilter === w ? "selected" : ""}>${esc(w)}</option>`).join("")}
