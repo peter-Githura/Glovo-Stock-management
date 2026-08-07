@@ -154,7 +154,7 @@
 /* =========================================================
    CONFIG — paste your deployed Apps Script Web App URL below
 ========================================================= */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywD3sjByWEz6E_ld-jHk487K896YIWs-ta-tXg-SN_yLneUG4Gfi9YbZ1UZ_ja1sb2Zg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNP8bytT9uVZW8VC_-_5Si5cSP0xB4wOjUXD5LzUcpCWWRzK7TLTdPbCjH_S2193gLYQ/exec";
 const POLL_MS = 12000;
 const HEARTBEAT_MS = 20000;
 const ONLINE_THRESHOLD_MS = 45000;
@@ -1290,8 +1290,10 @@ window.importRidersBulk = importRidersBulk;
 async function performRiderImport(parsed) {
   if (!parsed.length) return showToast("No valid rider rows found.", "error");
   try {
-    await apiCall("bulkImportRiders", { riders: parsed });
-    showToast(`Imported ${parsed.length} rider(s).`);
+    const result = await apiCall("bulkImportRiders", { riders: parsed });
+    const newCount = result && typeof result.added === "number" ? result.added : parsed.length;
+    const total = result && result.total ? ` — ${result.total} riders total now.` : "";
+    showToast(`Imported ${parsed.length} row(s): ${newCount} new rider(s) added, the rest updated existing entries.${total}`);
     await refreshData(); render();
   } catch (e) { showToast(e.message, "error"); }
 }
