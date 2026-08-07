@@ -26,9 +26,11 @@
     --danger-bg: #FBE7E1; --green-bg: #E3F4EF;
   }
   * { box-sizing: border-box; }
+  html { width: 100%; overflow-x: hidden; }
+  img { max-width: 100%; }
   body {
     margin: 0; background: var(--bg); font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: var(--text); padding: 0; min-height: 100vh;
+    color: var(--text); padding: 0; min-height: 100vh; overflow-x: hidden;
   }
   #app-shell {
     display: flex; width: 100%; min-height: 100vh; background: var(--bg); color: var(--text);
@@ -36,6 +38,7 @@
   #sidebar {
     width: 230px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border);
     display: flex; flex-direction: column; padding: 18px 0; transition: width .15s ease;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
   }
   #sidebar.collapsed { width: 68px; }
   #sidebar.collapsed .sidebar-link { justify-content:center; padding:10px 8px; }
@@ -77,10 +80,13 @@
   }
   @media (max-width: 760px) {
     #app-shell { flex-direction: column; }
-    #sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; align-items:center; }
+    #sidebar { width: 100%; flex-direction: row; overflow-x: auto; overflow-y: visible; padding: 10px; align-items:center; position: static; height: auto; }
     .sidebar-logo { padding: 0 12px 0 4px; }
     .sidebar-nav { flex-direction: row; overflow-x: auto; }
     .sidebar-online { display:none; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .content { padding: 16px; }
+    #topbar { padding: 12px 16px; }
   }
   .field { display:flex; flex-direction:column; gap:6px; }
   .field label { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
@@ -89,7 +95,7 @@
     color: var(--text); font-family:inherit; font-size:14px; outline:none; width:100%;
   }
   input[type=color] { padding:4px; height:40px; cursor:pointer; }
-  textarea { resize:vertical; font-family: monospace; }
+  textarea { resize:vertical; font-family: inherit; }
   .btn { border:none; border-radius:8px; padding:10px 16px; font-weight:800; font-size:13px; font-family:inherit; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
   .btn-accent { background: var(--accent); color: var(--accent-text); }
   .btn-green { background: var(--green); color:#fff; }
@@ -101,9 +107,9 @@
   .grid-auto { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; }
   .grid-auto-140 { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
   table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { text-align:left; padding:9px 12px; background:var(--table-head); color:var(--text-muted); font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  th { text-align:left; padding:9px 12px; background:var(--table-head); color:var(--text-muted); font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:2; }
   td { padding:9px 12px; border-bottom:1px solid var(--table-row-border); color:var(--table-text); }
-  .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
+  .table-wrap { overflow-x:auto; overflow-y:auto; max-height:480px; border:1px solid var(--border); border-radius:10px; }
   .muted { color: var(--text-muted); }
   .dim { color: var(--text-dim); }
   .accent-text { color: var(--accent-ink); font-weight:700; }
@@ -161,8 +167,12 @@ const ONLINE_THRESHOLD_MS = 45000;
 ========================================================= */
 
 /* ---------------- constants ---------------- */
-const REPLACEMENT_REASONS = ["Damaged Bag", "Dirty Bag", "Stolen", "Competitor"];
+const REPLACEMENT_REASONS = ["Damaged Bag", "Dirty Bag", "Stolen", "Competitor", "Onboarding"];
 const COMPETITORS = ["Uber Eats", "Bolt Food", "Jumia", "Little", "eBee", "Dial Delivery", "Other"];
+const FREE_REASONS = ["Glovo+ Reward", "Focus Group", "Challenge Reward", "City Representatives", "Ops Decision"];
+const WEEK_NUMBERS = Array.from({ length: 53 }, (_, i) => i + 1);
+const LOW_STOCK_THRESHOLD = 500;
+const LOW_STOCK_WARNING_BUFFER = 200; // flag as "approaching" once within this many units above the threshold
 const GLOVO_EMAIL_RE = /^[^\s@]+@([a-zA-Z0-9-]+\.)*glovoapp\.com$/i;
 const AVATAR_COLORS = ["#F2CC38", "#00A082", "#E85D3F", "#7A6A1E", "#3F7CE8", "#B14FD8", "#D8574F", "#3FAE8C"];
 const TABS = [
@@ -265,7 +275,8 @@ let toastTimer = null;
 let issueDraft = {
   date: todayStr(), riderQuery: "", selectedRider: null, itemSku: "", size: "",
   qty: 1, centre: "", amount: "", paymentMethod: "paid", transactionCode: "",
-  replacementReason: "", competitorName: "",
+  replacementReason: "", competitorName: "", onboardingWeek: "",
+  freeReason: "", walletReason: "",
 };
 let itemsDraft = { sku: "", name: "", spec: "", color: "#00A082", imageUrl: "", sizesInput: "" };
 let centresDraft = { newName: "", newPoc: "" };
@@ -658,6 +669,13 @@ function renderIssueTab() {
             ${COMPETITORS.map((c) => `<option value="${esc(c)}" ${issueDraft.competitorName === c ? "selected" : ""}>${esc(c)}</option>`).join("")}
           </select>
         </div>` : ""}
+      ${issueDraft.replacementReason === "Onboarding" ? `
+        <div class="field"><label>Onboarding week</label>
+          <select onchange="issueDraft.onboardingWeek=this.value">
+            <option value="">Select week…</option>
+            ${WEEK_NUMBERS.map((w) => `<option value="${w}" ${String(issueDraft.onboardingWeek) === String(w) ? "selected" : ""}>Week ${w}</option>`).join("")}
+          </select>
+        </div>` : ""}
     </div>` : "";
 
   const paymentAmountField = issueDraft.paymentMethod !== "free" ? `
@@ -667,8 +685,19 @@ function renderIssueTab() {
   const paymentExtra = issueDraft.paymentMethod === "paid"
     ? `<div class="field"><label>Transaction Code (M-Pesa / payment ref)</label><input style="text-transform:uppercase;" value="${esc(issueDraft.transactionCode)}" oninput="issueDraft.transactionCode=this.value" placeholder="e.g. QFT7X8YZ12" /></div>`
     : issueDraft.paymentMethod === "wallet"
-    ? `<div class="muted" style="font-size:12px;">No transaction code needed — this amount will be added to the rider's wallet as unpaid, visible in the Rider Wallet tab until they settle it.</div>`
-    : `<div style="display:flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid var(--green);border-radius:8px;padding:10px 12px;font-size:12.5px;">🎁 No charge — this item is issued free of charge, no amount or transaction code needed.</div>`;
+    ? `
+      <div class="muted" style="font-size:12px;margin-bottom:10px;">No transaction code needed — this amount will be added to the rider's wallet as unpaid, visible in the Rider Wallet tab until they settle it.</div>
+      <div class="field"><label>Reason (e.g. Rider has no funds, has lower CB)</label>
+        <input value="${esc(issueDraft.walletReason)}" oninput="issueDraft.walletReason=this.value" placeholder="e.g. Rider has no funds, has lower CB" />
+      </div>`
+    : `
+      <div style="display:flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid var(--green);border-radius:8px;padding:10px 12px;font-size:12.5px;margin-bottom:10px;">🎁 No charge — this item is issued free of charge, no amount or transaction code needed.</div>
+      <div class="field"><label>Reason for free issue</label>
+        <select onchange="issueDraft.freeReason=this.value">
+          <option value="">Select reason…</option>
+          ${FREE_REASONS.map((r) => `<option value="${esc(r)}" ${issueDraft.freeReason === r ? "selected" : ""}>${esc(r)}</option>`).join("")}
+        </select>
+      </div>`;
 
   return `
     <div class="issue-layout">
@@ -749,15 +778,26 @@ function selectIssueItem(sku) {
   issueDraft.itemSku = sku;
   const it = STATE.items.find((i) => i.sku === sku);
   issueDraft.size = it && it.sizes && it.sizes.length ? it.sizes[0] : "";
-  if (!isBagItem(it)) { issueDraft.replacementReason = ""; issueDraft.competitorName = ""; }
+  if (!isBagItem(it)) { issueDraft.replacementReason = ""; issueDraft.competitorName = ""; issueDraft.onboardingWeek = ""; }
   render();
 }
 window.selectIssueItem = selectIssueItem;
 function selectIssueSize(sz) { issueDraft.size = sz; render(); }
 window.selectIssueSize = selectIssueSize;
-function selectReason(r) { issueDraft.replacementReason = r; if (r !== "Competitor") issueDraft.competitorName = ""; render(); }
+function selectReason(r) {
+  issueDraft.replacementReason = r;
+  if (r !== "Competitor") issueDraft.competitorName = "";
+  if (r !== "Onboarding") issueDraft.onboardingWeek = "";
+  render();
+}
 window.selectReason = selectReason;
-function selectPayment(m) { issueDraft.paymentMethod = m; if (m === "free") { issueDraft.amount = ""; issueDraft.transactionCode = ""; } render(); }
+function selectPayment(m) {
+  issueDraft.paymentMethod = m;
+  if (m === "free") { issueDraft.amount = ""; issueDraft.transactionCode = ""; issueDraft.walletReason = ""; }
+  if (m === "wallet") { issueDraft.freeReason = ""; }
+  if (m === "paid") { issueDraft.freeReason = ""; issueDraft.walletReason = ""; }
+  render();
+}
 window.selectPayment = selectPayment;
 
 function onRiderQueryInput(val) {
@@ -790,10 +830,13 @@ async function submitIssuance() {
   const bagSelected = isBagItem(it);
   if (bagSelected && !issueDraft.replacementReason) return showToast("Select a reason for replacing the bag.", "error");
   if (bagSelected && issueDraft.replacementReason === "Competitor" && !issueDraft.competitorName) return showToast("Select which competitor the rider is moving to.", "error");
+  if (bagSelected && issueDraft.replacementReason === "Onboarding" && !issueDraft.onboardingWeek) return showToast("Select the onboarding week.", "error");
 
   const numAmount = issueDraft.paymentMethod === "free" ? 0 : parseFloat(issueDraft.amount || "0");
   if (issueDraft.paymentMethod !== "free" && issueDraft.amount !== "" && (isNaN(numAmount) || numAmount < 0)) return showToast("Enter a valid amount.", "error");
   if (issueDraft.paymentMethod === "paid" && numAmount > 0 && !issueDraft.transactionCode.trim()) return showToast("Enter the M-Pesa / payment transaction code.", "error");
+  if (issueDraft.paymentMethod === "free" && !issueDraft.freeReason) return showToast("Select a reason for the free issue.", "error");
+  if (issueDraft.paymentMethod === "wallet" && !issueDraft.walletReason.trim()) return showToast("Enter a reason for adding this to the rider's wallet.", "error");
 
   const week = isoWeekLabel(issueDraft.date);
   const weekday = weekdayName(issueDraft.date);
@@ -807,18 +850,22 @@ async function submitIssuance() {
     transactionCode: issueDraft.paymentMethod === "paid" ? issueDraft.transactionCode.trim() : "",
     replacementReason: bagSelected ? issueDraft.replacementReason : "",
     competitorName: bagSelected && issueDraft.replacementReason === "Competitor" ? issueDraft.competitorName : "",
+    onboardingWeek: bagSelected && issueDraft.replacementReason === "Onboarding" ? issueDraft.onboardingWeek : "",
+    freeReason: issueDraft.paymentMethod === "free" ? issueDraft.freeReason : "",
+    walletReason: issueDraft.paymentMethod === "wallet" ? issueDraft.walletReason.trim() : "",
   };
 
   try {
     await apiCall("recordIssuance", payload);
     try { await apiCall("upsertStaff", { email: currentUser.email, name: currentUser.name }); } catch (e2) { /* presence update is best-effort, don't block on it */ }
-    const paymentNote = payload.paymentMethod === "free" ? " Issued free of charge."
-      : numAmount > 0 ? (payload.paymentMethod === "wallet" ? ` ${formatKES(numAmount)} added to rider wallet (unpaid).` : ` ${formatKES(numAmount)} paid, txn ${payload.transactionCode}.`) : "";
-    const reasonNote = bagSelected ? ` Reason: ${payload.replacementReason}${payload.replacementReason === "Competitor" ? ` (${payload.competitorName})` : ""}.` : "";
+    const paymentNote = payload.paymentMethod === "free" ? ` Issued free of charge (${payload.freeReason}).`
+      : numAmount > 0 ? (payload.paymentMethod === "wallet" ? ` ${formatKES(numAmount)} added to rider wallet (unpaid) — ${payload.walletReason}.` : ` ${formatKES(numAmount)} paid, txn ${payload.transactionCode}.`) : "";
+    const reasonNote = bagSelected ? ` Reason: ${payload.replacementReason}${payload.replacementReason === "Competitor" ? ` (${payload.competitorName})` : payload.replacementReason === "Onboarding" ? ` (Week ${payload.onboardingWeek})` : ""}.` : "";
     showToast(`Recorded: ${payload.qty} × ${it.name}${payload.size ? ` (${payload.size})` : ""} issued to ${payload.riderId} (${payload.riderName}) at ${payload.centre}.${paymentNote}${reasonNote}`);
     issueDraft.riderQuery = ""; issueDraft.selectedRider = null; issueDraft.qty = 1;
     issueDraft.amount = ""; issueDraft.transactionCode = ""; issueDraft.paymentMethod = "paid";
-    issueDraft.replacementReason = ""; issueDraft.competitorName = "";
+    issueDraft.replacementReason = ""; issueDraft.competitorName = ""; issueDraft.onboardingWeek = "";
+    issueDraft.freeReason = ""; issueDraft.walletReason = "";
     await refreshData();
     render();
   } catch (e) {
@@ -932,6 +979,37 @@ function renderStockTab() {
   const transferRow = rows.find((r) => r.key === stockDraft.transferKey);
   const whQty = STATE.stockWarehouse[stockDraft.transferKey] || 0;
 
+  // Restock alerts — flag anything at/below the 500-unit threshold as
+  // needing immediate restock, and anything within 200 units above it
+  // as approaching risk, so there's a heads-up before it actually runs out.
+  const restockRows = rows.map((row) => {
+    const qty = STATE.stockWarehouse[row.key] || 0;
+    const diff = qty - LOW_STOCK_THRESHOLD;
+    let status = "ok";
+    if (diff < 0) status = "critical";
+    else if (diff <= LOW_STOCK_WARNING_BUFFER) status = "warning";
+    return { row, qty, diff, status };
+  }).filter((r) => r.status !== "ok").sort((a, b) => a.qty - b.qty);
+
+  const restockAlertHtml = restockRows.length ? `
+    <section>
+      <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🔔 Restock Alerts <span class="dim" style="font-size:11.5px;font-weight:400;">(threshold: ${LOW_STOCK_THRESHOLD} units)</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${restockRows.map((r) => {
+          const critical = r.status === "critical";
+          return `<div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;border-color:${critical ? "var(--danger)" : "var(--accent)"};background:${critical ? "var(--danger-bg)" : "var(--green-bg)"};">
+            <div>
+              <div style="font-weight:700;font-size:13px;">${critical ? "🔴" : "🟡"} ${esc(r.row.label)}</div>
+              <div style="font-size:12px;margin-top:2px;">${critical
+                ? `<strong>${Math.abs(r.diff)} units below threshold — restock immediately.</strong> Currently ${r.qty} in warehouse.`
+                : `${r.diff} units of buffer before hitting the ${LOW_STOCK_THRESHOLD} threshold. Currently ${r.qty} in warehouse.`}</div>
+            </div>
+            <div style="font-size:20px;font-weight:800;${critical ? "color:var(--danger);" : ""}">${r.qty}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </section>` : "";
+
   const centreRowsHtml = STATE.centres.map((c) => {
     const stockRow = STATE.stockCentres[c.name] || {};
     return `<tr><td style="font-weight:700;">${esc(c.name)}</td>${rows.map((r) => {
@@ -943,6 +1021,7 @@ function renderStockTab() {
 
   return `
     ${readOnly ? viewOnlyBanner() : ""}
+    ${restockAlertHtml}
     <section>
       <div style="font-weight:800;font-size:15px;margin-bottom:10px;">📦 Warehouse Stock Balance</div>
       <div class="grid-auto-140">${warehouseCards}</div>
@@ -1154,11 +1233,11 @@ function renderRidersTab() {
           <textarea rows="5" oninput="ridersDraft.bulk=this.value" placeholder="GLV-2201, John Mwangi&#10;GLV-2202, Faith Achieng">${esc(ridersDraft.bulk)}</textarea>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
-          <button class="btn btn-green" onclick="importRidersBulk()">Import List</button>
+          <button class="btn btn-green" id="importListBtn" onclick="importRidersBulk()">Import List</button>
           <span class="dim" style="font-size:12px;">or</span>
-          <label class="btn btn-outline" style="cursor:pointer;">
+          <label class="btn btn-outline" id="csvUploadLabel" style="cursor:pointer;">
             📄 Upload CSV
-            <input type="file" accept=".csv,text/csv" onchange="handleCsvUpload(event)" style="display:none;" />
+            <input type="file" id="csvUploadInput" accept=".csv,text/csv" onchange="handleCsvUpload(event)" style="display:none;" />
           </label>
         </div>
       </div>
@@ -1188,6 +1267,7 @@ function renderRidersList() {
 }
 window.renderRidersList = renderRidersList;
 async function importRidersBulk() {
+  if (csvUploadBusy) return;
   const lines = ridersDraft.bulk.split("\n").map((l) => l.trim()).filter(Boolean);
   const parsed = [];
   lines.forEach((line) => {
@@ -1195,8 +1275,15 @@ async function importRidersBulk() {
     if (id && rest.length) parsed.push({ id: id.trim(), name: rest.join(",").trim() });
   });
   if (!parsed.length) return showToast('Format each line as "RiderID, Rider Name".', "error");
-  await performRiderImport(parsed);
-  ridersDraft.bulk = "";
+  csvUploadBusy = true;
+  setCsvUploadingUI(true);
+  try {
+    await performRiderImport(parsed);
+    ridersDraft.bulk = "";
+  } finally {
+    csvUploadBusy = false;
+    setCsvUploadingUI(false);
+  }
 }
 window.importRidersBulk = importRidersBulk;
 
@@ -1230,46 +1317,77 @@ function parseCsvLine(line) {
   return cells.map((c) => c.trim());
 }
 
+let csvUploadBusy = false;
+function setCsvUploadingUI(busy) {
+  const label = document.getElementById("csvUploadLabel");
+  const input = document.getElementById("csvUploadInput");
+  const importBtn = document.getElementById("importListBtn");
+  if (label) {
+    label.innerHTML = busy
+      ? `⏳ Uploading…`
+      : `📄 Upload CSV<input type="file" id="csvUploadInput" accept=".csv,text/csv" onchange="handleCsvUpload(event)" style="display:none;" />`;
+    label.style.opacity = busy ? "0.6" : "1";
+    label.style.pointerEvents = busy ? "none" : "auto";
+  }
+  if (importBtn) {
+    importBtn.disabled = busy;
+    importBtn.style.opacity = busy ? "0.6" : "1";
+    importBtn.textContent = busy ? "Importing…" : "Import List";
+  }
+}
+
 function handleCsvUpload(event) {
+  if (csvUploadBusy) return;
   const file = event.target.files[0];
   if (!file) return;
+  csvUploadBusy = true;
+  setCsvUploadingUI(true);
   const reader = new FileReader();
   reader.onload = async (e) => {
-    const text = e.target.result;
-    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-    if (!lines.length) return showToast("That CSV file looks empty.", "error");
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      if (!lines.length) { showToast("That CSV file looks empty.", "error"); return; }
 
-    const rows = lines.map(parseCsvLine);
+      const rows = lines.map(parseCsvLine);
 
-    // Detect an ID column and a Name column by header, case-insensitively.
-    // Falls back to "first column = id, second column = name" if no
-    // recognizable header is found.
-    const header = rows[0].map((h) => h.toLowerCase());
-    const idCandidates = ["rider_id", "riderid", "id"];
-    const nameCandidates = ["full_name", "fullname", "name", "rider_name", "ridername"];
-    let idIdx = header.findIndex((h) => idCandidates.includes(h));
-    let nameIdx = header.findIndex((h) => nameCandidates.includes(h));
-    let dataRows = rows;
-    if (idIdx !== -1 && nameIdx !== -1) {
-      dataRows = rows.slice(1); // skip header row
-    } else {
-      idIdx = 0; nameIdx = 1; // no recognizable header — assume col A, col B
+      // Detect an ID column and a Name column by header, case-insensitively.
+      // Falls back to "first column = id, second column = name" if no
+      // recognizable header is found.
+      const header = rows[0].map((h) => h.toLowerCase());
+      const idCandidates = ["rider_id", "riderid", "id"];
+      const nameCandidates = ["full_name", "fullname", "name", "rider_name", "ridername"];
+      let idIdx = header.findIndex((h) => idCandidates.includes(h));
+      let nameIdx = header.findIndex((h) => nameCandidates.includes(h));
+      let dataRows = rows;
+      if (idIdx !== -1 && nameIdx !== -1) {
+        dataRows = rows.slice(1); // skip header row
+      } else {
+        idIdx = 0; nameIdx = 1; // no recognizable header — assume col A, col B
+      }
+
+      const parsed = [];
+      dataRows.forEach((r) => {
+        const id = (r[idIdx] || "").trim();
+        const name = (r[nameIdx] || "").trim();
+        if (id && name) parsed.push({ id, name });
+      });
+
+      if (!parsed.length) {
+        showToast('Could not find rider ID / name columns in that CSV.', "error");
+        return;
+      }
+      await performRiderImport(parsed);
+    } finally {
+      csvUploadBusy = false;
+      setCsvUploadingUI(false);
     }
-
-    const parsed = [];
-    dataRows.forEach((r) => {
-      const id = (r[idIdx] || "").trim();
-      const name = (r[nameIdx] || "").trim();
-      if (id && name) parsed.push({ id, name });
-    });
-
-    if (!parsed.length) {
-      showToast('Could not find rider ID / name columns in that CSV.', "error");
-      return;
-    }
-    await performRiderImport(parsed);
   };
-  reader.onerror = () => showToast("Couldn't read that file.", "error");
+  reader.onerror = () => {
+    showToast("Couldn't read that file.", "error");
+    csvUploadBusy = false;
+    setCsvUploadingUI(false);
+  };
   reader.readAsText(file);
   event.target.value = ""; // allow re-selecting the same file later
 }
@@ -1432,8 +1550,8 @@ function renderLogTab() {
       <td>${esc(i.itemName)}${i.size ? ` (${esc(i.size)})` : ""}</td>
       <td>${esc(i.centre)}</td>
       <td>${i.qty}</td>
-      <td>${i.replacementReason ? `<span style="color:${i.replacementReason === "Competitor" ? "var(--danger)" : "var(--text-muted)"};font-weight:${i.replacementReason === "Competitor" ? 700 : 400};">${esc(i.replacementReason)}${i.competitorName ? ` (${esc(i.competitorName)})` : ""}</span>` : `<span class="dim">—</span>`}</td>
-      <td>${i.paymentMethod === "free" ? `<span class="accent-text">🎁 Free</span>` : !i.amount ? `<span class="dim">—</span>` : i.paymentMethod === "wallet" ? `<span class="danger-text">${formatKES(i.amount)} · Wallet</span>` : `<span class="green-text">${formatKES(i.amount)} · ${esc(i.transactionCode)}</span>`}</td>
+      <td>${i.replacementReason ? `<span style="color:${i.replacementReason === "Competitor" ? "var(--danger)" : "var(--text-muted)"};font-weight:${i.replacementReason === "Competitor" ? 700 : 400};">${esc(i.replacementReason)}${i.competitorName ? ` (${esc(i.competitorName)})` : ""}${i.onboardingWeek ? ` (Week ${esc(i.onboardingWeek)})` : ""}</span>` : `<span class="dim">—</span>`}</td>
+      <td>${i.paymentMethod === "free" ? `<span class="accent-text" title="${esc(i.freeReason || "")}">🎁 Free${i.freeReason ? ` · ${esc(i.freeReason)}` : ""}</span>` : !i.amount ? `<span class="dim">—</span>` : i.paymentMethod === "wallet" ? `<span class="danger-text" title="${esc(i.walletReason || "")}">${formatKES(i.amount)} · Wallet${i.walletReason ? ` · ${esc(i.walletReason)}` : ""}</span>` : `<span class="green-text">${formatKES(i.amount)} · ${esc(i.transactionCode)}</span>`}</td>
       <td>${i.issuedByName ? esc(i.issuedByName) : `<span class="dim">—</span>`}</td>
       <td>${readOnly ? "" : `<span style="cursor:pointer;color:var(--danger);" onclick="deleteIssuance('${jsEsc(i.id)}')">🗑</span>`}</td>
     </tr>`).join("") : `<tr><td colspan="10">No issuance records yet.</td></tr>`;
@@ -1465,12 +1583,12 @@ function exportLogCsv() {
     (logDraft.weekFilter === "all" || i.week === logDraft.weekFilter) &&
     (logDraft.centreFilter === "all" || i.centre === logDraft.centreFilter)
   );
-  const header = ["Date", "Weekday", "Week", "Rider ID", "Rider Name", "Item", "Size", "SKU", "Centre", "Qty", "Replacement Reason", "Competitor", "Amount (KES)", "Payment", "Transaction Code", "Issued By", "Issued By Email"];
+  const header = ["Date", "Weekday", "Week", "Rider ID", "Rider Name", "Item", "Size", "SKU", "Centre", "Qty", "Replacement Reason", "Competitor", "Onboarding Week", "Amount (KES)", "Payment", "Transaction Code", "Free Reason", "Wallet Reason", "Issued By", "Issued By Email"];
   const rows = filtered.map((i) => [
     i.date, i.weekday, i.week, i.riderId, i.riderName, i.itemName, i.size || "", i.sku, i.centre, i.qty,
-    i.replacementReason || "", i.competitorName || "", i.amount || 0,
+    i.replacementReason || "", i.competitorName || "", i.onboardingWeek || "", i.amount || 0,
     i.paymentMethod === "wallet" ? "Wallet (unpaid)" : i.paymentMethod === "paid" ? "Paid" : i.paymentMethod === "free" ? "Free" : "n/a",
-    i.transactionCode || "", i.issuedByName || "", i.issuedByEmail || "",
+    i.transactionCode || "", i.freeReason || "", i.walletReason || "", i.issuedByName || "", i.issuedByEmail || "",
   ]);
   const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
